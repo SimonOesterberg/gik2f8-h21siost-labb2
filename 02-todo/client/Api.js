@@ -130,5 +130,26 @@ class Api {
   
   */
 
+update(data) {
+
+  const JSONData = JSON.stringify(data);
+  
+  console.log(data);
+  const request = new Request(this.url, {
+    method: 'PATCH',
+    body: JSONData,
+    headers: {
+      'content-type': 'application/json'
+    }
+  });
+
+  return (
+    fetch(request)
+      .then((result) => result.json())
+      .then((data) => data)
+      .catch((err) => console.log(err))
+  );
+}
+    
   /***********************Labb 2 ***********************/
 }

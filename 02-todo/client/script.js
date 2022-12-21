@@ -248,7 +248,7 @@ function renderTask({ id, title, description, dueDate, completed}) {
   html += `
       <div class="flex justify-end">
         <label for="completed">Avklarad:</label>
-        <input class="ml-2" type="checkbox" id="completedCheckbox" name="completed" ${checked}>
+        <input class="ml-2" onclick="updateTask({id : ${id}, completed : ${!completed}})" type="checkbox" id="completedCheckbox" name="completed" ${checked}>
       </div>
     </li>`;
   /***********************Labb 2 ***********************/
@@ -290,6 +290,15 @@ Om du hittar något annat sätt som funkar för dig, använd för all del det, s
 
 /* Anropet till api.update ska följas av then(). then() behöver, som bör vara bekant vid det här laget, en callbackfunktion som ska hantera det som kommer tillbaka från servern via vår api-klass. Inuti den funktionen bör listan med uppgifter renderas på nytt, så att den nyligen gjorda förändringen syns. */
 
+function updateTask(data) {
+
+  api.update(data).then((result) => {
+    if (result) {
+      /* När en kontroll har gjorts om task ens finns - dvs. att det som kom tillbaka från servern faktiskt var ett objekt kan vi anropa renderList(), som ansvarar för att uppdatera vår todo-lista. renderList kommer alltså att köras först när vi vet att det gått bra att spara ner den nya uppgiften.  */
+      renderList();
+    }
+  });
+}
 
 /***********************Labb 2 ***********************/
 
