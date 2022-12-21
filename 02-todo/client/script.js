@@ -208,7 +208,7 @@ function renderList() {
 Endast en uppgift åt gången kommer att skickas in här, eftersom den anropas inuti en forEach-loop, där uppgifterna loopas igenom i tur och ordning.  */
 
 /* Destructuring används för att endast plocka ut vissa egenskaper hos uppgifts-objektet. Det hade kunnat stå function renderTask(task) {...} här - för det är en hel task som skickas in - men då hade man behövt skriva task.id, task.title osv. på alla ställen där man ville använda dem. Ett trick är alltså att "bryta ut" dessa egenskaper direkt i funktionsdeklarationen istället. Så en hel task skickas in när funktionen anropas uppe i todoListElement.insertAdjacentHTML("beforeend", renderTask(task)), men endast vissa egenskaper ur det task-objektet tas emot här i funktionsdeklarationen. */
-function renderTask({ id, title, description, dueDate, completed}) {
+function renderTask({id, title, description, dueDate, completed}) {
   /* Baserat på inskickade egenskaper hos task-objektet skapas HTML-kod med styling med hjälp av tailwind-klasser. Detta görs inuti en templatestring  (inom`` för att man ska kunna använda variabler inuti. Dessa skrivs inom ${}) */
 
   /*
@@ -248,7 +248,7 @@ function renderTask({ id, title, description, dueDate, completed}) {
   html += `
       <div class="flex justify-end">
         <label for="completed">Avklarad:</label>
-        <input class="ml-2" onclick="updateTask({id : ${id}, completed : ${!completed}})" type="checkbox" id="completedCheckbox" name="completed" ${checked}>
+        <input class="ml-2" onclick="updateTask(${id}, {completed : ${!completed}})" type="checkbox" id="completedCheckbox" name="completed" ${checked}>
       </div>
     </li>`;
   /***********************Labb 2 ***********************/
@@ -290,14 +290,9 @@ Om du hittar något annat sätt som funkar för dig, använd för all del det, s
 
 /* Anropet till api.update ska följas av then(). then() behöver, som bör vara bekant vid det här laget, en callbackfunktion som ska hantera det som kommer tillbaka från servern via vår api-klass. Inuti den funktionen bör listan med uppgifter renderas på nytt, så att den nyligen gjorda förändringen syns. */
 
-function updateTask(data) {
+function updateTask(id, data) {
 
-  api.update(data).then((result) => {
-    if (result) {
-      /* När en kontroll har gjorts om task ens finns - dvs. att det som kom tillbaka från servern faktiskt var ett objekt kan vi anropa renderList(), som ansvarar för att uppdatera vår todo-lista. renderList kommer alltså att köras först när vi vet att det gått bra att spara ner den nya uppgiften.  */
-      renderList();
-    }
-  });
+  api.update(id, data);
 }
 
 /***********************Labb 2 ***********************/

@@ -118,22 +118,19 @@ app.delete('/tasks/:id', async (req, res) => {
 
 app.patch('/tasks/:id', async (req, res) => {
   try {
-    const newData = req.params;
-    res.send(req.body);
+    const newData = req.body;
     const id = req.params.id;
     const listBuffer = await fs.readFile('./tasks.json');
     const currentTasks = JSON.parse(listBuffer);
     if (currentTasks.length > 0) {
-      let completedTask = currentTasks.filter((task) => task.id == id);
-      if(completedTask.length == 1){
-        Object.assign(completedTask[0], newData);
-        const completedTaskList = currentTasks.filter(task => task.id != id);
-        await fs.writeFile('./tasks.json', JSON.stringify([...completedTaskList, completedTask[0]]))
-      } 
-      
-    } else {
+      const updatedTask = currentTasks.filter((task) => task.id == id);
+      Object.assign(updatedTask[0], newData);
+      const unchangedTasks = currentTasks.filter(task => task.id != id);
+      await fs.writeFile('./tasks.json', JSON.stringify([...unchangedTasks, updatedTask[0]]))
 
-      res.status(404).send({ error: 'Ingen uppgift' });
+      res.send({message: `Uppgift med id ${id} har uppdaterats!`});
+    } else {
+      res.status(404).send({ error: 'Ingen uppgift att uppdatera' });
     }
 
   } catch (error) {
