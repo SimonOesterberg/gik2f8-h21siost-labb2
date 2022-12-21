@@ -215,11 +215,19 @@ function renderTask({id, title, description, dueDate, completed}) {
   Det som skrivs inom `` är vanlig HTML, men det kan vara lite svårt att se att det är så. Om man enklare vill se hur denna kod fungerar kan man klistra in det i ett HTML-dokument, för då får man färgkodning och annat som kan underlätta. Om man gör det kommer dock ${...} inte innehålla texten i variabeln utan bara skrivas ut som det är. Men det är lättare att felsöka just HTML-koden på det sättet i alla fall. 
   */
 
+  let checked = "";
+  let completedStyle = "";
+
+  if (completed) {
+    checked = "checked";
+    completedStyle = `bg-green-200`
+  }
+
   /* Lite kort om vad HTML-koden innehåller. Det mesta är bara struktur och Tailwind-styling enligt eget tycke och smak. Värd att nämna extra är dock knappen, <button>-elementet, en bit ned. Där finns ett onclick-attribut som kopplar en eventlyssnare till klickeventet. Eventlyssnaren här heter onDelete och den får med sig egenskapen id, som vi fått med oss från task-objektet. Notera här att det går bra att sätta parenteser och skicka in id på detta viset här, men man fick inte sätta parenteser på eventlyssnare när de kopplades med addEventListener (som för formulärfälten högre upp i koden). En stor del av föreläsning 3 rörande funktioner och event förklarar varför man inte får sätta parenteser på callbackfunktioner i JavaScriptkod. 
   
   När eventlyssnaren kopplas till knappen här nedanför, görs det däremot i HTML-kod och inte JavaScript. Man sätter ett HTML-attribut och refererar till eventlyssnarfunktionen istället. Då fungerar det annorlunda och parenteser är tillåtna. */
   let html = `
-    <li class="select-none mt-2 py-2 border-b border-amber-300">
+    <li class="bg-white bg-opacity-75 select-none mt-2 p-3 rounded border-neutral-400 border border-solid shadow cursor-pointer hover:shadow-sm hover:shadow-inner ${completedStyle}" onclick="document.getElementById('completedCheckbox${id}').click()">
       <div class="flex items-center">
         <h3 class="mb-3 flex-1 text-xl font-bold text-pink-800 uppercase">${title}</h3>
         <div>
@@ -238,17 +246,11 @@ function renderTask({id, title, description, dueDate, completed}) {
       <p class="ml-8 mt-2 text-xs italic">${description}</p>
   `);
 
-  let checked = ""
-
-  if (completed) {
-    checked = "checked"
-  }
-
   /* När html-strängen eventuellt har byggts på med HTML-kod för description-egenskapen läggs till sist en sträng motsvarande sluttaggen för <li>-elementet dit. */
   html += `
       <div class="flex justify-end">
-        <label for="completed">Avklarad:</label>
-        <input class="ml-2" onclick="updateTask(${id}, {completed : ${!completed}})" type="checkbox" id="completedCheckbox" name="completed" ${checked}>
+        <label for="completed__${id}">Avklarad:</label>
+        <input class="ml-2 cursor-pointer" onclick="updateTask(${id}, {completed : ${!completed}})" type="checkbox" id="completedCheckbox${id}" name="completed__${id}" ${checked}>
       </div>
     </li>`;
   /***********************Labb 2 ***********************/
@@ -291,7 +293,6 @@ Om du hittar något annat sätt som funkar för dig, använd för all del det, s
 /* Anropet till api.update ska följas av then(). then() behöver, som bör vara bekant vid det här laget, en callbackfunktion som ska hantera det som kommer tillbaka från servern via vår api-klass. Inuti den funktionen bör listan med uppgifter renderas på nytt, så att den nyligen gjorda förändringen syns. */
 
 function updateTask(id, data) {
-
   api.update(id, data);
 }
 

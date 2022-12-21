@@ -134,7 +134,6 @@ update(id, data) {
 
   const JSONData = JSON.stringify(data);
   
-  console.log(data);
   const request = new Request(`${this.url}/${id}`, {
     method: 'PATCH',
     body: JSONData,

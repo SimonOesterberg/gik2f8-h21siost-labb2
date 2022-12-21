@@ -118,24 +118,21 @@ app.delete('/tasks/:id', async (req, res) => {
 
 app.patch('/tasks/:id', async (req, res) => {
   try {
-    const newData = req.body;
-    const id = req.params.id;
-    const listBuffer = await fs.readFile('./tasks.json');
-    const currentTasks = JSON.parse(listBuffer);
-    if (currentTasks.length > 0) {
-      const updatedTask = currentTasks.filter((task) => task.id == id);
-      Object.assign(updatedTask[0], newData);
-      const unchangedTasks = currentTasks.filter(task => task.id != id);
-      await fs.writeFile('./tasks.json', JSON.stringify([...unchangedTasks, updatedTask[0]]))
+    const jsonFile = await fs.readFile('./tasks.json');
+    const taskList = JSON.parse(jsonFile);
+    const task = taskList.find(task => task.id == req.params.id);
+    const update = req.body;
 
-      res.send({message: `Uppgift med id ${id} har uppdaterats!`});
+    if (task) {
+      Object.assign(task, update);
+      await fs.writeFile('./tasks.json', JSON.stringify(taskList));
+      
+      res.send({message: `Uppgift med id ${task.id} uppdaterades`});
     } else {
-      res.status(404).send({ error: 'Ingen uppgift att uppdatera' });
+      res.status(404).send({error: 'Ingen uppgift att uppdatera'});
     }
-
   } catch (error) {
-    /* Om något annat fel uppstår, skickas statuskod 500, dvs. ett generellt serverfel, tillsammans med information om felet.  */
-    res.status(500).send({ error: error.stack });
+    res.status(500).send({error: error.stack});
   }
 });
 
