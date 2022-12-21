@@ -208,7 +208,7 @@ function renderList() {
 Endast en uppgift åt gången kommer att skickas in här, eftersom den anropas inuti en forEach-loop, där uppgifterna loopas igenom i tur och ordning.  */
 
 /* Destructuring används för att endast plocka ut vissa egenskaper hos uppgifts-objektet. Det hade kunnat stå function renderTask(task) {...} här - för det är en hel task som skickas in - men då hade man behövt skriva task.id, task.title osv. på alla ställen där man ville använda dem. Ett trick är alltså att "bryta ut" dessa egenskaper direkt i funktionsdeklarationen istället. Så en hel task skickas in när funktionen anropas uppe i todoListElement.insertAdjacentHTML("beforeend", renderTask(task)), men endast vissa egenskaper ur det task-objektet tas emot här i funktionsdeklarationen. */
-function renderTask({ id, title, description, dueDate }) {
+function renderTask({ id, title, description, dueDate, completed}) {
   /* Baserat på inskickade egenskaper hos task-objektet skapas HTML-kod med styling med hjälp av tailwind-klasser. Detta görs inuti en templatestring  (inom`` för att man ska kunna använda variabler inuti. Dessa skrivs inom ${}) */
 
   /*
@@ -226,10 +226,6 @@ function renderTask({ id, title, description, dueDate }) {
           <span>${dueDate}</span>
           <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
         </div>
-        <div>
-          <label for="completed">Scales</label>
-          <input type="checkbox" id="completedCheckbox" name="completed" >
-        </div>
       </div>`;
 
   /* Här har templatesträngen avslutats tillfälligt för att jag bara vill skriva ut kommande del av koden om description faktiskt finns */
@@ -242,8 +238,18 @@ function renderTask({ id, title, description, dueDate }) {
       <p class="ml-8 mt-2 text-xs italic">${description}</p>
   `);
 
+  let checked = ""
+
+  if (completed) {
+    checked = "checked"
+  }
+
   /* När html-strängen eventuellt har byggts på med HTML-kod för description-egenskapen läggs till sist en sträng motsvarande sluttaggen för <li>-elementet dit. */
   html += `
+      <div class="flex justify-end">
+        <label for="completed">Avklarad:</label>
+        <input class="ml-2" type="checkbox" id="completedCheckbox" name="completed" ${checked}>
+      </div>
     </li>`;
   /***********************Labb 2 ***********************/
   /* I ovanstående template-sträng skulle det vara lämpligt att sätta en checkbox, eller ett annat element som någon kan klicka på för att markera en uppgift som färdig. Det elementet bör, likt knappen för delete, också lyssna efter ett event (om du använder en checkbox, kolla på exempelvis w3schools vilket element som triggas hos en checkbox när dess värde förändras.). Skapa en eventlyssnare till det event du finner lämpligt. Funktionen behöver nog ta emot ett id, så den vet vilken uppgift som ska markeras som färdig. Det skulle kunna vara ett checkbox-element som har attributet on[event]="updateTask(id)". */
