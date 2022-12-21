@@ -226,6 +226,10 @@ function renderTask({ id, title, description, dueDate }) {
           <span>${dueDate}</span>
           <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
         </div>
+        <div>
+          <label for="completed">Scales</label>
+          <input type="checkbox" id="completedCheckbox" name="completed" >
+        </div>
       </div>`;
 
   /* Här har templatesträngen avslutats tillfälligt för att jag bara vill skriva ut kommande del av koden om description faktiskt finns */
@@ -279,6 +283,7 @@ Om du hittar något annat sätt som funkar för dig, använd för all del det, s
 */
 
 /* Anropet till api.update ska följas av then(). then() behöver, som bör vara bekant vid det här laget, en callbackfunktion som ska hantera det som kommer tillbaka från servern via vår api-klass. Inuti den funktionen bör listan med uppgifter renderas på nytt, så att den nyligen gjorda förändringen syns. */
+
 
 /***********************Labb 2 ***********************/
 
