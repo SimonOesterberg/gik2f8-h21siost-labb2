@@ -70,6 +70,11 @@ app.post('/tasks', async (req, res) => {
     /* Om currentTasks finns - dvs det finns tidigare lagrade uppgifter,  skapas en ny array innehållande tidigare uppgifter (varje befintlig uppgift i currentTasks läggs till i den nya arrayen med hjälp av spreadoperatorn) plus den nya uppgiften. Om det inte tidigare finns några uppgifter, skapas istället en ny array med endast den nya uppgiften.  */
     const newList = currentTasks ? [...currentTasks, newTask] : [newTask];
 
+    /* Jämför dueDate så att uppgiften som ska klaras av först hamnar högst upp. */
+    newList.sort(function (a, b) {
+      return a.dueDate.localeCompare(b.dueDate);
+    });
+
     /* Den nya listan görs om till en textsträng med hjälp av JSON.stringify och sparas ner till filen tasks.json med hjälp av fs-modulens writeFile-metod. Anropet är asynkront så await används för att invänta svaret innan koden går vidare. */
     await fs.writeFile('./tasks.json', JSON.stringify(newList));
     /* Det är vanligt att man vid skapande av någon ny resurs returnerar tillbaka den nya sak som skapades. Så den nya uppgiften skickas med som ett success-response. */
@@ -83,7 +88,7 @@ app.post('/tasks', async (req, res) => {
 
 /* Route-adressen som specificeras i delete har /:id i tillägg till adressen. Det betyder att man i adressen kan skriva task följt av ett / och sedan något som kommer att sparas i en egenskap vid namn id. :id betyder att det som står efter / kommer att heta id i requestobjektet. Hade kunnat vara vad som helst. Så här möjliggörs att lyssna efter DELETE-anrop på exempelvis url:en localhost:5000/task/1 där 1 då skulle motsvara ett id på den uppgift man vill ta bort */
 app.delete('/tasks/:id', async (req, res) => {
-  console.log(req);
+
   try {
     /* För att nå egenskaper tagna ur url:en  använder man req.params och sedan namnet som man gett egenskapen, i detta fall id, då vi skrev :id. */
     const id = req.params.id;
@@ -113,16 +118,16 @@ app.delete('/tasks/:id', async (req, res) => {
   }
 });
 
-/***********************Labb 2 ***********************/
-/* Här skulle det vara lämpligt att skriva en funktion som likt post eller delete tar kan hantera PUT- eller PATCH-anrop (du får välja vilket, läs på om vad som verkar mest vettigt för det du ska göra) för att kunna markera uppgifter som färdiga. Den nya statusen - completed true eller falase - kan skickas i förfrågans body (req.body) tillsammans med exempelvis id så att man kan söka fram en given uppgift ur listan, uppdatera uppgiftens status och till sist spara ner listan med den uppdaterade uppgiften */
-
+/* Uppdatera task med ny data baserat på id */
 app.patch('/tasks/:id', async (req, res) => {
   try {
+    /* Variabler för att: Komma åt originaldatan i tasks-filen, leta reda på den task som ska ändras, spara den nya datan som kommer med i requestens body. */
     const jsonFile = await fs.readFile('./tasks.json');
     const taskList = JSON.parse(jsonFile);
     const task = taskList.find(task => task.id == req.params.id);
     const update = req.body;
 
+    /* Om tasken med id:t hittades skriv över med den nya datan och spara om filen med den uppdaterade informationen. */
     if (task) {
       Object.assign(task, update);
       await fs.writeFile('./tasks.json', JSON.stringify(taskList));
@@ -135,9 +140,6 @@ app.patch('/tasks/:id', async (req, res) => {
     res.status(500).send({error: error.stack});
   }
 });
-
-/* Observera att all kod rörande backend för labb 2 ska skrivas i denna fil och inte i app.node.js. App.node.js är bara till för exempel från lektion 5 och innehåller inte någon kod som används vidare under lektionerna. */
-/***********************Labb 2 ***********************/
 
 /* Med app.listen säger man åte servern att starta. Första argumentet är port - dvs. det portnummer man vill att servern ska köra på. Det sattes till 5000 på rad 9. Det andra argumentet är en anonym arrow-funktion som körs när servern har lyckats starta. Här skrivs bara ett meddelande ut som berättar att servern kör, så att man får feedback på att allt körts igång som det skulle. */
 app.listen(PORT, () => console.log('Server running on http://localhost:5000'));

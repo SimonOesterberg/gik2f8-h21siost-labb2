@@ -215,6 +215,7 @@ function renderTask({id, title, description, dueDate, completed}) {
   Det som skrivs inom `` är vanlig HTML, men det kan vara lite svårt att se att det är så. Om man enklare vill se hur denna kod fungerar kan man klistra in det i ett HTML-dokument, för då får man färgkodning och annat som kan underlätta. Om man gör det kommer dock ${...} inte innehålla texten i variabeln utan bara skrivas ut som det är. Men det är lättare att felsöka just HTML-koden på det sättet i alla fall. 
   */
 
+  /* Variabler som uppdateras och förändrar utseenedet på en task om den är angiven som avklarad. */
   let checked = "";
   let completedStyle = "";
 
@@ -227,7 +228,7 @@ function renderTask({id, title, description, dueDate, completed}) {
   
   När eventlyssnaren kopplas till knappen här nedanför, görs det däremot i HTML-kod och inte JavaScript. Man sätter ett HTML-attribut och refererar till eventlyssnarfunktionen istället. Då fungerar det annorlunda och parenteser är tillåtna. */
   let html = `
-    <li class="bg-white bg-opacity-75 select-none mt-2 p-3 rounded border-neutral-400 border border-solid shadow cursor-pointer hover:shadow-sm hover:shadow-inner ${completedStyle}" onclick="document.getElementById('completedCheckbox${id}').click()">
+    <li class="bg-white bg-opacity-75 select-none mt-2 p-3 rounded border-neutral-400 border border-solid shadow ${completedStyle}">
       <div class="flex items-center">
         <h3 class="mb-3 flex-1 text-xl font-bold text-pink-800 uppercase">${title}</h3>
         <div>
@@ -253,9 +254,6 @@ function renderTask({id, title, description, dueDate, completed}) {
         <input class="ml-2 cursor-pointer" onclick="updateTask(${id}, {completed : ${!completed}})" type="checkbox" id="completedCheckbox${id}" name="completed__${id}" ${checked}>
       </div>
     </li>`;
-  /***********************Labb 2 ***********************/
-  /* I ovanstående template-sträng skulle det vara lämpligt att sätta en checkbox, eller ett annat element som någon kan klicka på för att markera en uppgift som färdig. Det elementet bör, likt knappen för delete, också lyssna efter ett event (om du använder en checkbox, kolla på exempelvis w3schools vilket element som triggas hos en checkbox när dess värde förändras.). Skapa en eventlyssnare till det event du finner lämpligt. Funktionen behöver nog ta emot ett id, så den vet vilken uppgift som ska markeras som färdig. Det skulle kunna vara ett checkbox-element som har attributet on[event]="updateTask(id)". */
-  /***********************Labb 2 ***********************/
 
   /* html-variabeln returneras ur funktionen och kommer att vara den som sätts som andra argument i todoListElement.insertAdjacentHTML("beforeend", renderTask(task)) */
   return html;
@@ -274,29 +272,12 @@ function deleteTask(id) {
   });
 }
 
-/***********************Labb 2 ***********************/
-/* Här skulle det vara lämpligt att skriva den funktion som angivits som eventlyssnare för när någon markerar en uppgift som färdig. Jag pratar alltså om den eventlyssnare som angavs i templatesträngen i renderTask. Det kan t.ex. heta updateTask. 
-  
-Funktionen bör ta emot ett id som skickas från <li>-elementet.
-*/
-
-/* Inuti funktionen kan ett objekt skickas till api-metoden update. Objektet ska som minst innehålla id på den uppgift som ska förändras, samt egenskapen completed som true eller false, beroende på om uppgiften markerades som färdig eller ofärdig i gränssnittet. 
-
-Det finns några sätt att utforma det som ska skickas till api.update-metoden. 
-
-Alternativ 1: objektet består av ett helt task-objekt, som också inkluderar förändringen. Exempel: {id: 1,  title: "x", description: "x", dueDate: "x", completed: true/false}
-Alternativ 2: objektet består bara av förändringarna och id på den uppgift som ska förändras. Exempel: {id: 1, completed: true/false } 
-
-Om du hittar något annat sätt som funkar för dig, använd för all del det, så länge det uppnår samma sak. :)
-*/
-
-/* Anropet till api.update ska följas av then(). then() behöver, som bör vara bekant vid det här laget, en callbackfunktion som ska hantera det som kommer tillbaka från servern via vår api-klass. Inuti den funktionen bör listan med uppgifter renderas på nytt, så att den nyligen gjorda förändringen syns. */
-
+/* Funktion för att uppdatera en task. Skickar in id:t på tasken och den nya datan. */
 function updateTask(id, data) {
-  api.update(id, data);
+  api.update(id, data).then((result) => {
+    renderList();
+  });
 }
-
-/***********************Labb 2 ***********************/
 
 /* Slutligen. renderList anropas också direkt, så att listan visas när man först kommer in på webbsidan.  */
 renderList();
